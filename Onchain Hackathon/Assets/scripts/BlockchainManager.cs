@@ -57,7 +57,7 @@ public class BlockchainManager : MonoBehaviour
             personalWallet: WalletProvider.InAppWallet,
             authOptions: new AuthOptions(authProvider: provider)
         );
-        string Address = await ThirdwebManager.Instance.SDK.Wallet.Connect(connection);//W capital hai doc me galat likha hai
+         Address = await ThirdwebManager.Instance.SDK.Wallet.Connect(connection);//W capital hai doc me galat likha hai
         //Address = await ThirdwebManager.Instance.SDK.Connect(connection);
 
         OnLoggedIn?.Invoke(Address);
@@ -73,7 +73,7 @@ public class BlockchainManager : MonoBehaviour
         var contract = sdk.GetContract("0xdFadC341C78Ff6Ec91c1789f4A92bad2ADF2BE06");
         Debug.Log("contract : ");Debug.Log( contract);
         var result = await contract.ERC20.ClaimTo(Address, numOfToken);
-        Debug.Log("result" + result);
+        Debug.Log("result   :  " + result);
         claimText.text = "Done";
 
 
