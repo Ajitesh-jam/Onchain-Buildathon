@@ -24,7 +24,11 @@ public class BlockchainManager : MonoBehaviour
     string abi = "[{\"type\":\"function\",\"name\":\"getRank\",\"inputs\":[{\"type\":\"address\",\"name\":\"_player\",\"internalType\":\"address\"}],\"outputs\":[{\"type\":\"uint256\",\"name\":\"\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"playerScores\",\"inputs\":[{\"type\":\"address\",\"name\":\"\",\"internalType\":\"address\"}],\"outputs\":[{\"type\":\"uint256\",\"name\":\"\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"players\",\"inputs\":[{\"type\":\"uint256\",\"name\":\"\",\"internalType\":\"uint256\"}],\"outputs\":[{\"type\":\"address\",\"name\":\"playerAddress\",\"internalType\":\"address\"},{\"type\":\"uint256\",\"name\":\"score\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"submitScore\",\"inputs\":[{\"type\":\"uint256\",\"name\":\"_score\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"}]";
 
 
+    //contarct refernces
 
+
+
+    
     private void Awake()//only one instant of this script.
     {
         if (Instance == null)
@@ -90,8 +94,6 @@ public class BlockchainManager : MonoBehaviour
         Debug.Log("result   :  " + result);
         claimText.text = "Done";
         GetTokenBalance();
-
-
     }
 
 
@@ -129,6 +131,35 @@ public class BlockchainManager : MonoBehaviour
         }
     }
 
+    public async void BurnTokensByTransfer(string amount)
+    {
+        try
+        {
+            Debug.Log("Transferring tokens to burn address...");
+
+            var sdk = ThirdwebManager.Instance.SDK;
+            var contract = sdk.GetContract("0xdFadC341C78Ff6Ec91c1789f4A92bad2ADF2BE06");
+
+            // Transfer tokens to the burn address
+            string burnAddress = "0x0000000000000000000000000000000000000000";
+            var result = await contract.ERC20.Transfer(burnAddress, amount);
+            Debug.Log("Transfer to burn address result: " + result);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("An error occurred while transferring tokens to the burn address: " + ex.Message);
+        }
+    }
+
+
+    public async void Upgrade()
+    {
+        //burn tokens
+        BurnTokensByTransfer("1");
+
+        //call upgrade function
+
+    }
 
 
 
