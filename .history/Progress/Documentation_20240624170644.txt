@@ -1,0 +1,7 @@
+
+Ajitesh
+
+thirdweb manager set
+connect wallet in canvas
+get client id from thirdweb site
+

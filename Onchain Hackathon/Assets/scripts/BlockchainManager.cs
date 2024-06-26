@@ -21,6 +21,10 @@ public class BlockchainManager : MonoBehaviour
     public TextMeshProUGUI claimText;
     public string numOfToken ;
 
+    string abi = "[{\"type\":\"function\",\"name\":\"getRank\",\"inputs\":[{\"type\":\"address\",\"name\":\"_player\",\"internalType\":\"address\"}],\"outputs\":[{\"type\":\"uint256\",\"name\":\"\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"playerScores\",\"inputs\":[{\"type\":\"address\",\"name\":\"\",\"internalType\":\"address\"}],\"outputs\":[{\"type\":\"uint256\",\"name\":\"\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"players\",\"inputs\":[{\"type\":\"uint256\",\"name\":\"\",\"internalType\":\"uint256\"}],\"outputs\":[{\"type\":\"address\",\"name\":\"playerAddress\",\"internalType\":\"address\"},{\"type\":\"uint256\",\"name\":\"score\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"submitScore\",\"inputs\":[{\"type\":\"uint256\",\"name\":\"_score\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"}]";
+
+
+
     private void Awake()//only one instant of this script.
     {
         if (Instance == null)
@@ -61,9 +65,16 @@ public class BlockchainManager : MonoBehaviour
         //Address = await ThirdwebManager.Instance.SDK.Connect(connection);
 
         OnLoggedIn?.Invoke(Address);
+       // InvokeLogIn();
 
         //iske baad game start kar saktey 
     }
+
+    //public void InvokeLogIn()
+    //{
+    //    OnLoggedIn.Invoke(Address);
+    //    GetTokenBalance();
+    //}
 
     public async void ClaimScore()
     {
@@ -71,33 +82,44 @@ public class BlockchainManager : MonoBehaviour
         claimTokens.interactable = false;
         var sdk = ThirdwebManager.Instance.SDK;
         var contract = sdk.GetContract("0xdFadC341C78Ff6Ec91c1789f4A92bad2ADF2BE06");
-        Debug.Log("contract : ");Debug.Log( contract);
-        var result = await contract.ERC20.ClaimTo(Address, numOfToken);
+        Debug.Log("contract : ");
+        Debug.Log( contract);
+        var result = await contract.ERC20.ClaimTo(Address,numOfToken);
         Debug.Log("result   :  " + result);
         claimText.text = "Done";
-
+        GetTokenBalance();
 
 
     }
 
-    internal async Task SubmitScore(float distanceTravelled)
+    public async void SubmitScore(int distanceTravelled)
     {
         Debug.Log($"Submitting score of {distanceTravelled} to blockchain for address {Address}");
         var contract = ThirdwebManager.Instance.SDK.GetContract(
-            "0x9d9a1f4c1a685857a5666db45588aa3d5643af9f",
-            "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"player\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"score\",\"type\":\"uint256\"}],\"name\":\"ScoreAdded\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"player\",\"type\":\"address\"}],\"name\":\"getRank\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"rank\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"score\",\"type\":\"uint256\"}],\"name\":\"submitScore\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
-        );
-        await contract.Write("submitScore", (int)distanceTravelled);
+            "0x7161636060D3f7692a3CF2ED395A29d05763b2e4", abi);
+        await contract.Write("submitScore", distanceTravelled);
+
+        GetRank();
     }
 
-    internal async Task<int> GetRank()
+    public async void GetRank()
     {
+        Debug.Log("Get Rank");
         var contract = ThirdwebManager.Instance.SDK.GetContract(
-            "0x9d9a1f4c1a685857a5666db45588aa3d5643af9f",
-            "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"player\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"score\",\"type\":\"uint256\"}],\"name\":\"ScoreAdded\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"player\",\"type\":\"address\"}],\"name\":\"getRank\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"rank\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"score\",\"type\":\"uint256\"}],\"name\":\"submitScore\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
-        );
+            "0x7161636060D3f7692a3CF2ED395A29d05763b2e4", abi);
         var rank = await contract.Read<int>("getRank", Address);
         Debug.Log($"Rank for address {Address} is {rank}");
-        return rank;
+     
+   }
+
+    public async void GetTokenBalance()
+    {
+        Debug.Log("Get Token balanace");
+        Debug.Log(Address);
+        var sdk = ThirdwebManager.Instance.SDK;
+        var contract = sdk.GetContract("0xdFadC341C78Ff6Ec91c1789f4A92bad2ADF2BE06");
+        var balance = await contract.ERC20.BalanceOf(Address);
+        claimText.text = "Balance : " + balance.displayValue;
+
     }
 }
