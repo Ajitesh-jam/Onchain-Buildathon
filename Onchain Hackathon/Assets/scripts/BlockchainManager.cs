@@ -85,12 +85,52 @@ public class BlockchainManager : MonoBehaviour
         Debug.Log("contract : ");
         Debug.Log( contract);
         var result = await contract.ERC20.ClaimTo(Address,numOfToken);
+
+        
         Debug.Log("result   :  " + result);
         claimText.text = "Done";
         GetTokenBalance();
 
 
     }
+
+
+    public async void Erc20functions()
+    {
+        try
+        {
+            Debug.Log("Trying ERC20 functions...");
+
+            // Initialize the SDK
+            var sdk = ThirdwebManager.Instance.SDK;
+
+            // Get the contract instance
+            var contract = sdk.GetContract("0xdFadC341C78Ff6Ec91c1789f4A92bad2ADF2BE06");
+            Debug.Log("Contract: " + contract);
+
+            // Define the recipient address and the amount to transfer
+            string recipientAddress = "0x1cD5a87BBc935739e69E3BcC726e442B104D8210";
+            string amountToTransfer = "2";
+
+            // Execute the transfer
+            var result = await contract.ERC20.Transfer(recipientAddress, amountToTransfer);
+            Debug.Log("Transfer result: " + result);
+
+            // Update the UI or perform further actions after the transfer
+            claimText.text = "Done";
+
+            // Fetch and display token balances
+            GetTokenBalance();
+            GetTokenBalanceByAddress(recipientAddress);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("An error occurred: " + ex.Message);
+        }
+    }
+
+
+
 
     public async void SubmitScore(int distanceTravelled)
     {
@@ -120,6 +160,16 @@ public class BlockchainManager : MonoBehaviour
         var contract = sdk.GetContract("0xdFadC341C78Ff6Ec91c1789f4A92bad2ADF2BE06");
         var balance = await contract.ERC20.BalanceOf(Address);
         claimText.text = "Balance : " + balance.displayValue;
+
+    }
+    public async void GetTokenBalanceByAddress(string add)
+    {
+        Debug.Log("Get Token balanace");
+        Debug.Log(add);
+        var sdk = ThirdwebManager.Instance.SDK;
+        var contract = sdk.GetContract("0xdFadC341C78Ff6Ec91c1789f4A92bad2ADF2BE06");
+        var balance = await contract.ERC20.BalanceOf(add);
+        Debug.Log("Balance of :" + add + " is : "+ balance.displayValue);
 
     }
 }
