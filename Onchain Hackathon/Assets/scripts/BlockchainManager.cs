@@ -159,6 +159,9 @@ public class BlockchainManager : MonoBehaviour
 
         //call upgrade function
 
+
+
+        
     }
 
 
@@ -203,4 +206,7 @@ public class BlockchainManager : MonoBehaviour
         Debug.Log("Balance of :" + add + " is : "+ balance.displayValue);
 
     }
+
+
+
 }
